@@ -1,8 +1,9 @@
-const Authors = (props) => {
-  if (!props.show) {
+const Authors = ({ show, allAuthors }) => {
+  console.log("🚀 ~ Authors ~ allAuthors:", allAuthors)
+  if (!show) {
     return null
   }
-  const authors = []
+  const authors = allAuthors
 
   return (
     <div>
