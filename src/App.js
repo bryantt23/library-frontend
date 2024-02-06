@@ -48,11 +48,11 @@ const App = () => {
         <button onClick={() => setPage('add')}>add book</button>
       </div>
 
-      <Authors show={page === 'authors'} allAuthors={allAuthors} />
+      <Authors show={page === 'authors'} allAuthors={allAuthors} ALL_AUTHORS={ALL_AUTHORS} />
 
       <Books show={page === 'books'} allBooks={allBooks} />
 
-      <NewBook show={page === 'add'} />
+      <NewBook show={page === 'add'} ALL_BOOKS={ALL_BOOKS} />
     </div>
   );
 };

@@ -1,16 +1,6 @@
 import { useState } from 'react';
 import { gql, useMutation } from '@apollo/client';
 
-const ALL_BOOKS = gql`
-  query {
-    allBooks {
-      title
-      author
-      published
-    }
-  }
-`;
-
 const ADD_BOOK = gql`
   mutation addBook(
     $title: String!
@@ -39,7 +29,7 @@ const NewBook = (props) => {
   const [published, setPublished] = useState('');
   const [genre, setGenre] = useState('');
   const [genres, setGenres] = useState([]);
-  const [addBook] = useMutation(ADD_BOOK, { refetchQueries: [{ query: ALL_BOOKS }] });
+  const [addBook] = useMutation(ADD_BOOK, { refetchQueries: [{ query: props.ALL_BOOKS }] });
 
   if (!props.show) {
     return null;
