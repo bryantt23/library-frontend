@@ -1,8 +1,8 @@
-import { useState } from 'react'
-import Authors from './components/Authors'
-import Books from './components/Books'
-import NewBook from './components/NewBook'
-import { gql, useQuery } from '@apollo/client'
+import { useState } from 'react';
+import Authors from './components/Authors';
+import Books from './components/Books';
+import NewBook from './components/NewBook';
+import { gql, useQuery } from '@apollo/client';
 
 const ALL_AUTHORS = gql`
   query {
@@ -12,28 +12,29 @@ const ALL_AUTHORS = gql`
         bookCount
     }
   }
-`
+`;
+
 const ALL_BOOKS = gql`
-  query  {
+  query {
     allBooks {
       title
       author
       published
     }
   }
-`
+`;
 
 const App = () => {
-  const [page, setPage] = useState('authors')
-  const { loading, error, data: allAuthorsData } = useQuery(ALL_AUTHORS);
-  const { loading, error, data: allBooksData } = useQuery(ALL_BOOKS);
+  const [page, setPage] = useState('authors');
+  const { loading: authorsLoading, error: authorsError, data: allAuthorsData } = useQuery(ALL_AUTHORS);
+  const { loading: booksLoading, error: booksError, data: allBooksData } = useQuery(ALL_BOOKS);
 
-  if (loading) {
+  if (authorsLoading || booksLoading) {
     return <p>Loading...</p>;
   }
 
-  if (error) {
-    return <p>Error: {error.message}</p>;
+  if (authorsError || booksError) {
+    return <p>Error: {authorsError ? authorsError.message : booksError.message}</p>;
   }
 
   const allAuthors = allAuthorsData.allAuthors;
@@ -53,7 +54,7 @@ const App = () => {
 
       <NewBook show={page === 'add'} />
     </div>
-  )
-}
+  );
+};
 
-export default App
+export default App;
