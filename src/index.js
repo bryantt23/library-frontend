@@ -4,7 +4,7 @@ import App from './App'
 
 import {
     ApolloClient,
-    ApolloProvider, InMemoryCache, gql
+    ApolloProvider, InMemoryCache
 } from '@apollo/client'
 
 const client = new ApolloClient({
