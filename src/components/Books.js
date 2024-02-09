@@ -6,7 +6,8 @@ const Books = ({ show, genre }) => {
   // Execute the query when the component mounts or when `genre` changes
   const { loading, error, data } = useQuery(GET_BOOKS, {
     variables: { genre },
-    skip: !show, // Skip the query if the component is not being shown
+    skip: !show, // Skip the query if the component is not being shown 
+    fetchPolicy: "network-only",
   });
 
   if (!show) {

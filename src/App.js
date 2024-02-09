@@ -122,7 +122,7 @@ const App = () => {
       <Books show={page === 'books'} genre={selectedGenre} />
       <div>{genreButtons}</div>
 
-      <NewBook show={page === 'add'} GET_BOOKS={GET_BOOKS} />
+      <NewBook show={page === 'add'} />
     </div>
   );
 };
