@@ -18,8 +18,23 @@ const App = () => {
   console.log("🚀 ~ App ~ userData:", userData)
 
   useSubscription(BOOK_ADDED, {
-    onData: ({ data }) => {
-      alert(JSON.stringify(data, null, 4))
+    onData: ({ data, client }) => {
+      console.log(JSON.stringify(data, null, 4))
+      // Read the current state of the books query from the cache
+      const existingBooks = client.readQuery({
+        query: GET_BOOKS,
+        variables: { genre: selectedGenre }, // Make sure this matches your query variables
+      });
+
+      // Add the new book to the list
+      const newBooks = existingBooks.allBooks.concat(data.data.bookAdded);
+
+      // Write the updated list back to the cache
+      client.writeQuery({
+        query: GET_BOOKS,
+        variables: { genre: selectedGenre }, // Make sure this matches your query variables
+        data: { allBooks: newBooks },
+      });
     }
   })
 
