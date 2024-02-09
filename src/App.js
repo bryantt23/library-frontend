@@ -2,9 +2,9 @@ import { useEffect, useState } from 'react';
 import Authors from './components/Authors';
 import Books from './components/Books';
 import NewBook from './components/NewBook';
-import { useQuery, useApolloClient } from '@apollo/client';
+import { useQuery, useApolloClient, useSubscription } from '@apollo/client';
 import LoginForm from './components/LoginForm';
-import { GET_USER_FAVORITE_GENRE, GET_BOOKS, ALL_AUTHORS } from "./queries"
+import { GET_USER_FAVORITE_GENRE, GET_BOOKS, ALL_AUTHORS, BOOK_ADDED } from "./queries"
 
 const App = () => {
   const [token, setToken] = useState(null)
@@ -16,6 +16,12 @@ const App = () => {
   const { loading: booksLoading, error: booksError, data: allBooksData } = useQuery(GET_BOOKS);
   const { data: userData } = useQuery(GET_USER_FAVORITE_GENRE);
   console.log("🚀 ~ App ~ userData:", userData)
+
+  useSubscription(BOOK_ADDED, {
+    onData: ({ data }) => {
+      alert(JSON.stringify(data, null, 4))
+    }
+  })
 
   // Effect for checking local storage for a token
   useEffect(() => {
