@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Authors from './components/Authors';
 import Books from './components/Books';
 import NewBook from './components/NewBook';
@@ -23,6 +23,7 @@ const ALL_BOOKS = gql`
       }
       title
       published
+      genres
     }
   }
 `;
@@ -32,8 +33,26 @@ const App = () => {
   const [token, setToken] = useState(null)
   const [page, setPage] = useState('authors');
   const [errorMessage, setErrorMessage] = useState("")
+  const [selectedGenre, setSelectedGenre] = useState(null);
+  const [selectedBooks, setSelectedBooks] = useState([])
+
   const { loading: authorsLoading, error: authorsError, data: allAuthorsData } = useQuery(ALL_AUTHORS);
   const { loading: booksLoading, error: booksError, data: allBooksData } = useQuery(ALL_BOOKS);
+
+  useEffect(() => {
+    if (!allBooksData?.allBooks) {
+      return
+    }
+    if (selectedGenre === null) {
+      setSelectedBooks(allBooksData.allBooks)
+    }
+    else {
+      const books = allBooksData.allBooks.filter(book => book.genres.includes(selectedGenre))
+      console.log("🚀 ~ useEffect ~ books:", books)
+      setSelectedBooks([...books])
+    }
+  }, [selectedGenre])
+
   const client = useApolloClient()
 
   const notify = (message) => {
@@ -83,6 +102,37 @@ const App = () => {
 
   const allAuthors = allAuthorsData.allAuthors;
   const allBooks = allBooksData.allBooks;
+  console.log("🚀 ~ App ~ allBooks:", allBooks)
+  // const allGenres = new Set()
+  // allBooks.forEach(book => book.genres.forEach(genre => allGenres.add(genre)))
+  const allGenres = [...new Set(allBooks.reduce((acc, book) => [...acc, ...book.genres], []))]
+  console.log("🚀 ~ App ~ allGenres:", allGenres)
+
+  // Function to handle genre selection
+  const handleSelectGenre = (genre) => {
+    if (genre === selectedGenre) {
+      setSelectedGenre(null)
+    }
+    else {
+      setSelectedGenre(genre);
+    }
+  };
+
+  // Genre buttons with conditional styling based on selection
+  const genreButtons = allGenres.map((genre) => (
+    <button
+      key={genre}
+      onClick={() => handleSelectGenre(genre)}
+      style={{
+        margin: '5px',
+        padding: '10px',
+        border: selectedGenre === genre ? '3px solid' : '1px solid #ddd',
+        backgroundColor: selectedGenre === genre ? '#fafafa' : 'transparent'
+      }}
+    >
+      {genre}
+    </button>
+  ));
 
   return (
     <div>
@@ -95,7 +145,8 @@ const App = () => {
 
       <Authors show={page === 'authors'} allAuthors={allAuthors} ALL_AUTHORS={ALL_AUTHORS} />
 
-      <Books show={page === 'books'} allBooks={allBooks} />
+      <Books show={page === 'books'} books={selectedBooks} />
+      <div>{genreButtons}</div>
 
       <NewBook show={page === 'add'} ALL_BOOKS={ALL_BOOKS} />
     </div>
