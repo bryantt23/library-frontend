@@ -4,17 +4,16 @@ import Books from './components/Books';
 import NewBook from './components/NewBook';
 import { useQuery, useApolloClient } from '@apollo/client';
 import LoginForm from './components/LoginForm';
-import { GET_USER_FAVORITE_GENRE, ALL_BOOKS, ALL_AUTHORS } from "./queries"
+import { GET_USER_FAVORITE_GENRE, GET_BOOKS, ALL_AUTHORS } from "./queries"
 
 const App = () => {
   const [token, setToken] = useState(null)
   const [page, setPage] = useState('authors');
   const [errorMessage, setErrorMessage] = useState("")
   const [selectedGenre, setSelectedGenre] = useState(null);
-  const [selectedBooks, setSelectedBooks] = useState([])
 
   const { loading: authorsLoading, error: authorsError, data: allAuthorsData } = useQuery(ALL_AUTHORS);
-  const { loading: booksLoading, error: booksError, data: allBooksData } = useQuery(ALL_BOOKS);
+  const { loading: booksLoading, error: booksError, data: allBooksData } = useQuery(GET_BOOKS);
   const { data: userData } = useQuery(GET_USER_FAVORITE_GENRE);
   console.log("🚀 ~ App ~ userData:", userData)
 
@@ -25,19 +24,6 @@ const App = () => {
       setToken(storedToken);
     }
   }, []); // Empty dependency array means this effect runs once on mount
-
-  useEffect(() => {
-    if (!allBooksData?.allBooks) {
-      return
-    }
-    if (selectedGenre === null) {
-      setSelectedBooks(allBooksData.allBooks)
-    }
-    else {
-      const books = allBooksData.allBooks.filter(book => book.genres.includes(selectedGenre))
-      setSelectedBooks([...books])
-    }
-  }, [selectedGenre])
 
   const client = useApolloClient()
 
@@ -133,10 +119,10 @@ const App = () => {
 
       <Authors show={page === 'authors'} allAuthors={allAuthors} ALL_AUTHORS={ALL_AUTHORS} />
 
-      <Books show={page === 'books'} books={selectedBooks} />
+      <Books show={page === 'books'} genre={selectedGenre} />
       <div>{genreButtons}</div>
 
-      <NewBook show={page === 'add'} ALL_BOOKS={ALL_BOOKS} />
+      <NewBook show={page === 'add'} GET_BOOKS={GET_BOOKS} />
     </div>
   );
 };
