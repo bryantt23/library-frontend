@@ -2,32 +2,9 @@ import { useEffect, useState } from 'react';
 import Authors from './components/Authors';
 import Books from './components/Books';
 import NewBook from './components/NewBook';
-import { gql, useQuery, useApolloClient } from '@apollo/client';
+import { useQuery, useApolloClient } from '@apollo/client';
 import LoginForm from './components/LoginForm';
-
-const ALL_AUTHORS = gql`
-  query {
-    allAuthors {
-        name
-        born
-        bookCount
-    }
-  }
-`;
-
-const ALL_BOOKS = gql`
-  query {
-    allBooks {
-      author{
-        name
-      }
-      title
-      published
-      genres
-    }
-  }
-`;
-
+import { GET_USER_FAVORITE_GENRE, ALL_BOOKS, ALL_AUTHORS } from "./queries"
 
 const App = () => {
   const [token, setToken] = useState(null)
@@ -38,6 +15,16 @@ const App = () => {
 
   const { loading: authorsLoading, error: authorsError, data: allAuthorsData } = useQuery(ALL_AUTHORS);
   const { loading: booksLoading, error: booksError, data: allBooksData } = useQuery(ALL_BOOKS);
+  const { data: userData } = useQuery(GET_USER_FAVORITE_GENRE);
+  console.log("🚀 ~ App ~ userData:", userData)
+
+  // Effect for checking local storage for a token
+  useEffect(() => {
+    const storedToken = localStorage.getItem('user-token'); // Adjust 'user-token' based on your storage key
+    if (storedToken) {
+      setToken(storedToken);
+    }
+  }, []); // Empty dependency array means this effect runs once on mount
 
   useEffect(() => {
     if (!allBooksData?.allBooks) {
@@ -48,7 +35,6 @@ const App = () => {
     }
     else {
       const books = allBooksData.allBooks.filter(book => book.genres.includes(selectedGenre))
-      console.log("🚀 ~ useEffect ~ books:", books)
       setSelectedBooks([...books])
     }
   }, [selectedGenre])
@@ -102,11 +88,9 @@ const App = () => {
 
   const allAuthors = allAuthorsData.allAuthors;
   const allBooks = allBooksData.allBooks;
-  console.log("🚀 ~ App ~ allBooks:", allBooks)
   // const allGenres = new Set()
   // allBooks.forEach(book => book.genres.forEach(genre => allGenres.add(genre)))
   const allGenres = [...new Set(allBooks.reduce((acc, book) => [...acc, ...book.genres], []))]
-  console.log("🚀 ~ App ~ allGenres:", allGenres)
 
   // Function to handle genre selection
   const handleSelectGenre = (genre) => {
@@ -140,6 +124,10 @@ const App = () => {
         <button onClick={() => setPage('authors')}>authors</button>
         <button onClick={() => setPage('books')}>books</button>
         <button onClick={() => setPage('add')}>add book</button>
+        <button onClick={() => {
+          setPage('books');
+          setSelectedGenre(userData.me.favoriteGenre)
+        }}>recommend</button>
         <button onClick={logout}>logout</button>
       </div>
 
